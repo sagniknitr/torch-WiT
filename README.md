@@ -1,2 +1,2 @@
-# torch-predict
-A tool to predict the efficacy of DNN optimizations
+# torch-WIT
+A tool to perform What-If analysis on  the efficacy of DNN optimizations
