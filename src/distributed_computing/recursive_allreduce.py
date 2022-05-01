@@ -67,7 +67,7 @@ def run_allreduce(rank, size):
 
     data = torch.rand(1, 1024, dtype=torch.float32)
     recv = torch.zeros_like(data)
-    print("start profiling")
+    print(data)
     with torch.profiler.profile(
         activities=[
             torch.profiler.ProfilerActivity.CPU],
@@ -77,9 +77,9 @@ def run_allreduce(rank, size):
     ) as p:
         reduceScatter(data, 0, size-1)
         allGather(data, 0, size-1)
-        p.step()
+        #p.step()
 
-    print(recv)
+    print(data)
 
 
 
@@ -94,7 +94,7 @@ def init_process(rank, size, fn, backend='gloo'):
     fn(rank, size)
 
 if __name__ == "__main__":
-    size = 4
+    size = 16
     processes = []
     mp.set_start_method("spawn")
     for rank in range(size):

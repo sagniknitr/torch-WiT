@@ -7,8 +7,8 @@ import time
 def allreduce(send, recv):
    rank = dist.get_rank()
    size = dist.get_world_size()
-   send_buff = torch.zeros(send.size())
-   recv_buff = torch.zeros(send.size())
+   #send_buff = torch.zeros(send.size())
+   #recv_buff = torch.zeros(send.size())
    accum = torch.zeros(send.size())
    accum[:] = send[:]
 
@@ -18,27 +18,27 @@ def allreduce(send, recv):
    for i in range(size - 1):
        if i % 2 == 0:
            # Send send_buff
-           send_req = dist.isend(send_buff, right)
-           dist.recv(recv_buff, left)
+           send_req = dist.isend(send, right)
+           dist.recv(recv, left)
            accum[:] += recv[:]
        else:
            # Send recv_buff
-           send_req = dist.isend(recv_buff, right)
-           dist.recv(send_buff, left)
+           send_req = dist.isend(recv, right)
+           dist.recv(send, left)
            accum[:] += send[:]
        send_req.wait()
    recv[:] = accum[:]
 
 def run_allreduce(rank, sz):
 
-    data = torch.rand(sz // 4, dtype=torch.float32)
+    data = torch.rand(1024, dtype=torch.float32)
     recv = torch.zeros_like(data)
     print("start profiling")
     with torch.profiler.profile(
         activities=[
             torch.profiler.ProfilerActivity.CPU],
         with_stack=False,
-        on_trace_ready=torch.profiler.tensorboard_trace_handler('./result_gloo'),
+        on_trace_ready=torch.profiler.tensorboard_trace_handler('./result_ring'),
         record_shapes=True
     ) as p:
         allreduce(send=data, recv=recv)
@@ -56,7 +56,7 @@ def init_process(rank, size, fn, backend='gloo'):
 
 
 if __name__ == "__main__":
-    size = 4
+    size = 16
     processes = []
     mp.set_start_method("spawn")
     for rank in range(size):
