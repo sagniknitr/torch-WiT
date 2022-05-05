@@ -23,11 +23,11 @@ def get_params(model, recurse=False):
 
 
 
-model = models.resnet18().cuda()
+model = models.inception_v3().cuda()
 for k, v in model.state_dict().items():
     print(k)
     print(type(v))
-inputs = torch.randn(5, 3, 224, 224).cuda()
+inputs = torch.randn(5, 3, 299, 299).cuda()
 print(torch.autograd._supported_activities())
 with profile(activities=[
         ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True) as prof:
